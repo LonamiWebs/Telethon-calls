@@ -1,5 +1,6 @@
 import hashlib
 import os
+import json
 import random
 from subprocess import Popen
 
@@ -12,10 +13,18 @@ from telethon.tl.types import PhoneCallEmpty, PhoneCallWaiting, \
     UpdatePhoneCall, PhoneCallProtocol, InputPhoneCall, Updates, UpdateShort
 from telethon.utils import get_input_user
 
-api_id = None
-api_hash = None
-phone_number, sname = '+34xxxxxxxxx', 'user'
-client = TelegramClient(sname, api_id, api_hash, process_updates=True)
+try:
+    with open('session.conf') as f:
+        conf = json.load(f)
+        api_id = conf['api_id']
+        api_hash = conf['api_hash']
+        phone_number = conf['phone_number']
+        session_name = conf['session_name']
+except Exception as e:
+    print('Failed to load session.conf:', repr(e))
+    quit()
+
+client = TelegramClient(session_name, api_id, api_hash, process_updates=True)
 client.connect()
 
 try:
