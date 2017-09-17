@@ -32,10 +32,10 @@ try:
     def get_dh_config():
         class DH:
             def __init__(self, dh_config):
-                self.p = int.from_bytes(dh_config.p, 'little')
+                self.p = int.from_bytes(dh_config.p, 'big')
                 self.g = dh_config.g
                 self.resp = dh_config
-        return DH(client(GetDhConfigRequest(0, 0)))
+        return DH(client(GetDhConfigRequest(0, 256)))
 
     dh_config = get_dh_config()
     calls = {}
@@ -81,7 +81,7 @@ try:
         return int.to_bytes(
             integer,
             length=(integer.bit_length() + 8 - 1) // 8,  # 8 bits per byte,
-            byteorder='little',
+            byteorder='big',
             signed=False
         )
 
@@ -136,9 +136,9 @@ try:
         print('[CALL] Full state currently', state.__dict__)
         if state.incoming:
             print('[CALL] Got more info about call from', call.admin_id, 'we have accepted.')
-            state.g_a = int.from_bytes(call.g_a_or_b, 'little')
+            state.g_a = int.from_bytes(call.g_a_or_b, 'big')
 
-            state.pt_g_a_hash = hashlib.sha256(integer_to_bytes(state.g_a)).digest()
+            state.pt_g_a_hash = hashlib.sha256(call.g_a_or_b).digest()
             if state.pt_g_a_hash != state.g_a_hash:
                 print('[CALL] HASH(G_A) != G_A_HASH!', state.pt_g_a_hash, state.g_a_hash)
             else:
